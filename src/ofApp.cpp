@@ -62,7 +62,7 @@ void ofApp::draw(){
     {
         // replace by circles
         ofSetColor(ofColor::white);
-        ofPixels & pixels = currentMovie.getPixels();
+        ofPixels& pixels = currentMovie.getPixels();
 
         int vidWidth = pixels.getWidth();
         int vidHeight = pixels.getHeight();
