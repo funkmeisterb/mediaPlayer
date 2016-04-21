@@ -1,0 +1,9 @@
+ofxArtnet
+ofxAssimpModelLoader
+ofxGui
+ofxNetwork
+ofxOpenCv
+ofxOsc
+ofxThreadedImageLoader
+ofxVectorGraphics
+ofxXmlSettings
