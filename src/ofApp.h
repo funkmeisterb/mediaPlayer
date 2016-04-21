@@ -2,8 +2,11 @@
 
 #include "ofMain.h"
 
-class ofApp : public ofBaseApp{
+#define PBM_NORMAL 0
+#define PBM_DOTS 1
+#define PBM_COUNT 2
 
+class ofApp : public ofBaseApp {
 	public:
 		void setup();
 		void update();
@@ -27,5 +30,5 @@ class ofApp : public ofBaseApp{
         ofVideoPlayer 		currentMovie;
         std::vector<ofFile> allMovies;
         unsigned int        currentMovieIndex;
-		
+        unsigned int        playbackMode;
 };
