@@ -2,15 +2,17 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+#ifndef TARGET_LINUX
+    // massive video slowdown in Linux for some reason
     ofSetFullscreen(true);
+#endif
+#ifndef DEBUG
+    ofHideCursor(); // not working in Linux
+#endif
     ofSetLogLevel(ofLogLevel::OF_LOG_NOTICE);
     ofSetFrameRate(60);
     ofSetWindowTitle("FKMB Media Player");
     ofSetBackgroundColor(ofColor::black);
-    //ofHideCursor(); // not working in Linux
-
-    //ofRemoveListener(ofEvents().mouseMoved, this, &ofApp::mouseMoved);
-    //ofUnregisterMouseEvents(this);
 
     // Video playback
     playbackMode = PBM_NORMAL;
@@ -64,6 +66,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    ofSetColor(ofColor::white);
     float windowW = ofGetWindowWidth();
     float windowH = ofGetWindowHeight();
     float videoW = currentMovie.getWidth();
@@ -83,8 +86,6 @@ void ofApp::draw(){
         targetH = windowH;
         targetW = videoW*windowH/videoW;
     }
-    //fboBlurOnePass.allocate(currentMovie.getWidth(), currentMovie.getHeight());
-    //fboBlurTwoPass.allocate(currentMovie.getWidth(), currentMovie.getHeight());
     fboBlurOnePass.allocate(targetW, targetH);
     fboBlurTwoPass.allocate(targetW, targetH);
 
@@ -200,6 +201,10 @@ void ofApp::draw(){
         ofSetColor(ofColor::white);
         fboBlurTwoPass.draw(0, 0);
     }
+#ifdef DEBUG
+    ofSetColor(ofColor::aquamarine);
+    ofDrawBitmapString("Playback mode: " + ofToString(playbackMode), 20, 20);
+#endif
 }
 
 //--------------------------------------------------------------
