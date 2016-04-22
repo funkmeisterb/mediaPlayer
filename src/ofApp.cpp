@@ -24,7 +24,7 @@ void ofApp::setup(){
     currentMovie.load(allMovies[currentMovieIndex].getAbsolutePath());
     currentMovie.setLoopState(OF_LOOP_NORMAL);
     currentMovie.play();
-    ofLog(ofLogLevel::OF_LOG_NOTICE, getVideoDetails(currentMovie));
+    videoChanged();
 
     // Shader 1
 #ifdef TARGET_OPENGLES
@@ -57,8 +57,6 @@ void ofApp::setup(){
     }
 #endif
     image.load("img.jpg");
-    fboBlurOnePass.allocate(image.getWidth(), image.getHeight());
-    fboBlurTwoPass.allocate(image.getWidth(), image.getHeight());
 }
 
 //--------------------------------------------------------------
@@ -69,6 +67,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    /*
     float windowW = ofGetWindowWidth();
     float windowH = ofGetWindowHeight();
     float videoW = currentMovie.getWidth();
@@ -76,8 +75,6 @@ void ofApp::draw(){
 
     bool landscapeVideo = videoW > videoH;
     bool fitToWidth = landscapeVideo;
-
-    float targetW, targetH = 0.0f;
     if (fitToWidth)
     {
         targetW = windowW;
@@ -88,6 +85,7 @@ void ofApp::draw(){
         targetH = windowH;
         targetW = videoW*windowH/videoW;
     }
+    */
 
     if (playbackMode == PBM_NORMAL)
     {
@@ -105,8 +103,8 @@ void ofApp::draw(){
         int vidHeight = pixels.getHeight();
         int nChannels = pixels.getNumChannels();
 
-        float horizontalScaling = targetW / videoW;
-        float verticalScaling = targetH / videoH;
+        float horizontalScaling = targetW / currentMovie.getWidth();
+        float verticalScaling = targetH / currentMovie.getHeight();
 
         // let's move through the "RGB(A)" char array
         // using the red pixel to control the size of a circle.
@@ -124,7 +122,7 @@ void ofApp::draw(){
         ofSetColor(ofColor::white);
         // Fit to width, and center the video inside the app window
         currentMovie.draw(0, 0, targetW, targetH);
-        
+
         shader1.begin();
 
         // center screen.
@@ -169,34 +167,31 @@ void ofApp::draw(){
     {
         ofSetColor(ofColor::white);
         float blur = ofMap(mouseX, 0, ofGetWidth(), 0, 10, true);
-        blur = 9.0;
 
         //----------------------------------------------------------
         fboBlurOnePass.begin();
-        
+
         shaderBlurX.begin();
         shaderBlurX.setUniform1f("blurAmnt", blur);
 
-        //currentMovie.draw(0, 0, targetW, targetH);
-        //currentMovie.draw(0, 0);
-        image.draw(0, 0);
+        currentMovie.draw(0, 0, targetW, targetH);
 
         shaderBlurX.end();
-        
+
         fboBlurOnePass.end();
-        
+
         //----------------------------------------------------------
         fboBlurTwoPass.begin();
-        
+
         shaderBlurY.begin();
         shaderBlurY.setUniform1f("blurAmnt", blur);
-        
+
         fboBlurOnePass.draw(0, 0);
-        
+
         shaderBlurY.end();
-        
+
         fboBlurTwoPass.end();
-        
+
         //----------------------------------------------------------
         ofSetColor(ofColor::white);
         fboBlurTwoPass.draw(0, 0);
@@ -214,7 +209,7 @@ void ofApp::keyPressed(int key){
         currentMovieIndex = (currentMovieIndex + 1) % allMovies.size();
         currentMovie.load(allMovies[currentMovieIndex].getAbsolutePath());
         currentMovie.play();
-        ofLog(ofLogLevel::OF_LOG_NOTICE, getVideoDetails(currentMovie));
+        videoChanged();
     }
     else if (key == 'a')
     {
@@ -224,12 +219,6 @@ void ofApp::keyPressed(int key){
     {
         playbackMode = (playbackMode + 1)% PBM_COUNT;
     }
-}
-
-std::string ofApp::getVideoDetails(ofVideoPlayer& video)
-{
-    std::string result = "Current video is now '" + allMovies[currentMovieIndex].getFileName() + "', W=" + ofToString(currentMovie.getWidth()) + ", H=" + ofToString(currentMovie.getHeight());
-    return result;
 }
 
 //--------------------------------------------------------------
@@ -278,6 +267,41 @@ void ofApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::dragEvent(ofDragInfo dragInfo){
 
+}
+
+//--------------------------------------------------------------
+std::string ofApp::getVideoDetails(ofVideoPlayer& video)
+{
+    std::string result = "Current video is now '" + allMovies[currentMovieIndex].getFileName() + "', W=" + ofToString(currentMovie.getWidth()) + ", H=" + ofToString(currentMovie.getHeight());
+    return result;
+}
+
+//--------------------------------------------------------------
+void ofApp::videoChanged()
+{
+    // Things to do when the source video changes
+    ofLog(ofLogLevel::OF_LOG_NOTICE, getVideoDetails(currentMovie));
+
+    float windowW = ofGetWindowWidth();
+    float windowH = ofGetWindowHeight();
+    float videoW = currentMovie.getWidth();
+    float videoH = currentMovie.getHeight();
+
+    bool landscapeVideo = videoW > videoH;
+    bool fitToWidth = landscapeVideo;
+    if (fitToWidth)
+    {
+        targetW = windowW;
+        targetH = videoH*windowH/videoH;
+    }
+    else
+    {
+        targetH = windowH;
+        targetW = videoW*windowH/videoW;
+    }
+
+    fboBlurOnePass.allocate(targetW, targetH);
+    fboBlurTwoPass.allocate(targetW, targetH);
 }

@@ -28,6 +28,8 @@ class ofApp : public ofBaseApp {
 
     private:
         std::string         getVideoDetails(ofVideoPlayer& video);
+        void                videoChanged();
+        float               targetW, targetH; // of video
 
         ofVideoPlayer 		currentMovie;
         std::vector<ofFile> allMovies;
