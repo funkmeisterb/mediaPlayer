@@ -56,7 +56,7 @@ void ofApp::setup(){
         shaderBlurY.load("shadersGL2/shaderBlurY");
     }
 #endif
-    image.load("img.jpg");
+    image.load("images/beergoggles.jpg");
 
     // Shader 3
     // TODO: support for ES2 and GL3
@@ -103,8 +103,6 @@ void ofApp::draw(){
     else if (playbackMode == PBM_SHADER_SPHERE)
     {
         // Fit to width, and center the video inside the app window
-        //currentMovie.draw(0, 0, targetW, targetH);
-
         shader1.begin();
 
         // center screen.
@@ -155,7 +153,8 @@ void ofApp::draw(){
         shaderBlurX.begin();
         shaderBlurX.setUniform1f("blurAmnt", blur);
 
-        currentMovie.draw(0, 0, targetW, targetH);
+        //currentMovie.draw(0, 0, targetW, targetH);
+        image.draw(0, 0, targetW, targetH);
 
         shaderBlurX.end();
 
