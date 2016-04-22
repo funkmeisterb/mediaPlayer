@@ -9,8 +9,9 @@ varying vec2 texCoordVarying;
 void main()
 {
     // copy position so we can work with it.
-    //vec4 pos = gl_Vertex;
-    vec2 pos = gl_MultiTexCoord0.xy;
+    //vec2 pos = gl_MultiTexCoord0.xy;
+    vec4 pos = gl_Vertex;
+    pos.xy = gl_MultiTexCoord0.xy;
     
     // direction vector from mouse position to vertex position.
     vec2 dir = pos.xy - mousePos;
@@ -34,9 +35,8 @@ void main()
     		pos.x += dir.x;
     		pos.y += dir.y;
 	}
-	texCoordVarying = pos;
+	texCoordVarying = pos.xy;
     
 	// finally set the pos to be that actual position rendered
-	//gl_Position = gl_ModelViewProjectionMatrix * pos;
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = gl_ModelViewProjectionMatrix * pos;
 }
