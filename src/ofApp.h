@@ -2,11 +2,12 @@
 
 #include "ofMain.h"
 
-#define PBM_NORMAL 0
-#define PBM_DOTS 1
-#define PBM_SHADER1 2
-#define PBM_SHADER2 3
-#define PBM_COUNT 4
+#define PBM_NORMAL          0
+#define PBM_DOTS            1
+#define PBM_SHADER_SPHERE   2
+#define PBM_SHADER_BLUR     3
+#define PBM_SHADER_BRU      4
+#define PBM_COUNT           5
 
 class ofApp : public ofBaseApp {
 	public:
@@ -44,4 +45,6 @@ class ofApp : public ofBaseApp {
         ofFbo               fboBlurOnePass;
         ofFbo               fboBlurTwoPass;
         ofImage             image;
+
+        ofShader            shaderBru;
 };

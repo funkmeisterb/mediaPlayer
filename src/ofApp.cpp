@@ -15,7 +15,7 @@ void ofApp::setup(){
     ofSetBackgroundColor(ofColor::black);
 
     // Video playback
-    playbackMode = PBM_NORMAL;
+    playbackMode = PBM_SHADER_BRU;
     currentMovieIndex = 0;
     ofSetVerticalSync(true);
     allMovies.push_back(ofFile("movies/fingers.mov"));
@@ -57,46 +57,29 @@ void ofApp::setup(){
     }
 #endif
     image.load("img.jpg");
+
+    // Shader 3
+    // TODO: support for ES2 and GL3
+    shaderBru.load("shadersGL2/shaderBru");
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     currentMovie.update();
-    ofLog(ofLogLevel::OF_LOG_NOTICE, "Frame rate = " + ofToString(ofGetFrameRate()));
+    //ofLog(ofLogLevel::OF_LOG_NOTICE, "Frame rate = " + ofToString(ofGetFrameRate()));
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    /*
-    float windowW = ofGetWindowWidth();
-    float windowH = ofGetWindowHeight();
-    float videoW = currentMovie.getWidth();
-    float videoH = currentMovie.getHeight();
-
-    bool landscapeVideo = videoW > videoH;
-    bool fitToWidth = landscapeVideo;
-    if (fitToWidth)
-    {
-        targetW = windowW;
-        targetH = videoH*windowH/videoH;
-    }
-    else
-    {
-        targetH = windowH;
-        targetW = videoW*windowH/videoW;
-    }
-    */
-
+    ofSetColor(ofColor::white);
     if (playbackMode == PBM_NORMAL)
     {
-        ofSetColor(ofColor::white);
         // Fit to width, and center the video inside the app window
         currentMovie.draw(0, 0, targetW, targetH);
     }
     else if (playbackMode == PBM_DOTS)
     {
         // replace by circles
-        ofSetColor(ofColor::white);
         ofPixels& pixels = currentMovie.getPixels();
 
         int vidWidth = pixels.getWidth();
@@ -117,11 +100,10 @@ void ofApp::draw(){
             }
         }
     }
-    else if (playbackMode == PBM_SHADER1)
+    else if (playbackMode == PBM_SHADER_SPHERE)
     {
-        ofSetColor(ofColor::white);
         // Fit to width, and center the video inside the app window
-        currentMovie.draw(0, 0, targetW, targetH);
+        //currentMovie.draw(0, 0, targetW, targetH);
 
         shader1.begin();
 
@@ -163,9 +145,8 @@ void ofApp::draw(){
 
         shader1.end();
     }
-    else if (playbackMode == PBM_SHADER2)
+    else if (playbackMode == PBM_SHADER_BLUR)
     {
-        ofSetColor(ofColor::white);
         float blur = ofMap(mouseX, 0, ofGetWidth(), 0, 10, true);
 
         //----------------------------------------------------------
@@ -195,6 +176,31 @@ void ofApp::draw(){
         //----------------------------------------------------------
         ofSetColor(ofColor::white);
         fboBlurTwoPass.draw(0, 0);
+    }
+    else if (playbackMode == PBM_SHADER_BRU)
+    {
+        // bind our texture. in our shader this will now be tex0 by default
+        // so we can just go ahead and access it there.
+        currentMovie.getTextureReference().bind();
+
+        // start our shader, in our OpenGL3 shader this will automagically set
+        // up a lot of matrices that we want for figuring out the texture matrix
+        // and the modelView matrix
+        shaderBru.begin();
+
+        // get mouse position relative to center of screen
+        float mousePosX = ofMap(mouseX, 0, ofGetWidth(), plane.getWidth(), -plane.getWidth(), true);
+        float mousePosY = ofMap(mouseY, 0, ofGetHeight(), plane.getHeight(), -plane.getHeight(), true);
+        shaderBru.setUniform2f("mousePos", mousePosX, mousePosY);
+        shaderBru.setUniform1f("mouseRange", 150);
+
+        ofPushMatrix();
+        currentMovie.draw(0, 0, targetW, targetH);
+        plane.drawWireframe();
+        ofPopMatrix();
+
+        shaderBru.end();
+        currentMovie.getTextureReference().unbind();
     }
 #ifdef DEBUG
     ofSetColor(ofColor::aquamarine);
@@ -304,4 +310,6 @@ void ofApp::videoChanged()
 
     fboBlurOnePass.allocate(targetW, targetH);
     fboBlurTwoPass.allocate(targetW, targetH);
+
+    plane.mapTexCoordsFromTexture(currentMovie.getTextureReference());
 }
