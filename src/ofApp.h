@@ -5,7 +5,8 @@
 #define PBM_NORMAL 0
 #define PBM_DOTS 1
 #define PBM_SHADER1 2
-#define PBM_COUNT 3
+#define PBM_SHADER2 3
+#define PBM_COUNT 4
 
 class ofApp : public ofBaseApp {
 	public:
@@ -32,5 +33,12 @@ class ofApp : public ofBaseApp {
         std::vector<ofFile> allMovies;
         unsigned int        currentMovieIndex;
         unsigned int        playbackMode;
+    
         ofShader            shader1;
+        ofPlanePrimitive    plane;
+    
+        ofShader shaderBlurX;
+        ofShader shaderBlurY;
+        ofFbo fboBlurOnePass;
+        ofFbo fboBlurTwoPass;
 };

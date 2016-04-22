@@ -7,7 +7,7 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     ofSetWindowTitle("FKMB Media Player");
     ofSetBackgroundColor(ofColor::black);
-    ofHideCursor(); // not working in Linux
+    //ofHideCursor(); // not working in Linux
 
     //ofRemoveListener(ofEvents().mouseMoved, this, &ofApp::mouseMoved);
     //ofUnregisterMouseEvents(this);
@@ -24,7 +24,7 @@ void ofApp::setup(){
     currentMovie.play();
     ofLog(ofLogLevel::OF_LOG_NOTICE, getVideoDetails(currentMovie));
 
-    // Shaders
+    // Shader 1
 #ifdef TARGET_OPENGLES
     shader1.load("shadersES2/shader");
 #else
@@ -32,6 +32,26 @@ void ofApp::setup(){
         shader1.load("shadersGL3/shader");
     }else{
         shader1.load("shadersGL2/shader");
+    }
+#endif
+    int planeWidth = ofGetWidth();
+    int planeHeight = ofGetHeight();
+    int planeGridSize = 20;
+    int planeColums = planeWidth / planeGridSize;
+    int planeRows = planeHeight / planeGridSize;
+    plane.set(planeWidth, planeHeight, planeColums, planeRows, OF_PRIMITIVE_TRIANGLES);
+    
+    // Shader 2
+#ifdef TARGET_OPENGLES
+    shaderBlurX.load("shadersES2/shaderBlurX");
+    shaderBlurY.load("shadersES2/shaderBlurY");
+#else
+    if(ofIsGLProgrammableRenderer()){
+        shaderBlurX.load("shadersGL3/shaderBlurX");
+        shaderBlurY.load("shadersGL3/shaderBlurY");
+    }else{
+        shaderBlurX.load("shadersGL2/shaderBlurX");
+        shaderBlurY.load("shadersGL2/shaderBlurY");
     }
 #endif
 }
@@ -63,6 +83,10 @@ void ofApp::draw(){
         targetH = windowH;
         targetW = videoW*windowH/videoW;
     }
+    //fboBlurOnePass.allocate(currentMovie.getWidth(), currentMovie.getHeight());
+    //fboBlurTwoPass.allocate(currentMovie.getWidth(), currentMovie.getHeight());
+    fboBlurOnePass.allocate(targetW, targetH);
+    fboBlurTwoPass.allocate(targetW, targetH);
 
     if (playbackMode == PBM_NORMAL)
     {
@@ -99,6 +123,9 @@ void ofApp::draw(){
     }
     else if (playbackMode == PBM_SHADER1)
     {
+        // Fit to width, and center the video inside the app window
+        currentMovie.draw(0, 0, targetW, targetH);
+        
         shader1.begin();
 
         // center screen.
@@ -135,11 +162,43 @@ void ofApp::draw(){
         shader1.setUniform4fv("mouseColor", &mouseColor[0]);
 
         ofTranslate(cx, cy);
-
-        // Fit to width, and center the video inside the app window
-        currentMovie.draw(0, 0, targetW, targetH);
+        
+        plane.drawWireframe();
 
         shader1.end();
+    }
+    else if (playbackMode == PBM_SHADER2)
+    {
+        float blur = ofMap(mouseX, 0, ofGetWidth(), 0, 10, true);
+        
+        //----------------------------------------------------------
+        fboBlurOnePass.begin();
+        
+        shaderBlurX.begin();
+        shaderBlurX.setUniform1f("blurAmnt", blur);
+        
+        // Fit to width, and center the video inside the app window
+        currentMovie.draw(0, 0, targetW, targetH);
+        
+        shaderBlurX.end();
+        
+        fboBlurOnePass.end();
+        
+        //----------------------------------------------------------
+        fboBlurTwoPass.begin();
+        
+        shaderBlurY.begin();
+        shaderBlurY.setUniform1f("blurAmnt", blur);
+        
+        fboBlurOnePass.draw(0, 0);
+        
+        shaderBlurY.end();
+        
+        fboBlurTwoPass.end();
+        
+        //----------------------------------------------------------
+        ofSetColor(ofColor::white);
+        fboBlurTwoPass.draw(0, 0);
     }
 }
 
