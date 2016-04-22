@@ -37,8 +37,9 @@ class ofApp : public ofBaseApp {
         ofShader            shader1;
         ofPlanePrimitive    plane;
     
-        ofShader shaderBlurX;
-        ofShader shaderBlurY;
-        ofFbo fboBlurOnePass;
-        ofFbo fboBlurTwoPass;
+        ofShader            shaderBlurX;
+        ofShader            shaderBlurY;
+        ofFbo               fboBlurOnePass;
+        ofFbo               fboBlurTwoPass;
+        ofImage             image;
 };
