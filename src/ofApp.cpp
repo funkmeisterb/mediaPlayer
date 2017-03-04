@@ -4,10 +4,10 @@
 void ofApp::setup(){
 #ifndef TARGET_LINUX
     // massive video slowdown in Linux for some reason
-    ofSetFullscreen(true);
+    //ofSetFullscreen(false);
 #endif
 #ifndef DEBUG
-    ofHideCursor(); // not working in Linux
+    //ofHideCursor(); // not working in Linux
 #endif
     ofSetLogLevel(ofLogLevel::OF_LOG_NOTICE);
     ofSetFrameRate(60);
@@ -48,19 +48,21 @@ void ofApp::setup(){
     shaderBlurX.load("shadersES2/shaderBlurX");
     shaderBlurY.load("shadersES2/shaderBlurY");
 #else
-    if(ofIsGLProgrammableRenderer()){
+    if(ofIsGLProgrammableRenderer())
+	{
         shaderBlurX.load("shadersGL3/shaderBlurX");
         shaderBlurY.load("shadersGL3/shaderBlurY");
-    }else{
+    }
+	else
+	{
         shaderBlurX.load("shadersGL2/shaderBlurX");
         shaderBlurY.load("shadersGL2/shaderBlurY");
     }
 #endif
-    image.load("images/beergoggles.jpg");
+    image.load("images/bikers.jpg");
 
     // Shader 3
-    // TODO: support for ES2 and GL3
-    shaderBru.load("shadersGL2/shaderBru");
+    shaderBru.load("shadersGL3/shaderBru");
 }
 
 //--------------------------------------------------------------
@@ -199,9 +201,10 @@ void ofApp::draw(){
 
         ofPushMatrix();
         ofTranslate(cx, cy);
-        currentMovie.draw(-ofGetWidth()/2, -ofGetHeight()/2, targetW, targetH);
-        ofSetColor(ofColor::deepPink);
-        plane.drawWireframe();
+        //currentMovie.draw(-ofGetWidth()/2, -ofGetHeight()/2, targetW, targetH);
+        //ofSetColor(ofColor::deepPink);
+        //plane.drawWireframe();
+		plane.draw();
         ofPopMatrix();
 
         shaderBru.end();
@@ -225,10 +228,12 @@ void ofApp::keyPressed(int key){
     else if (key == 'a')
     {
         playbackMode = (playbackMode - 1)% PBM_COUNT;
+		ofLogNotice("Current mode: " + ofToString(playbackMode));
     }
     else if (key == 'd')
     {
         playbackMode = (playbackMode + 1)% PBM_COUNT;
+		ofLogNotice("Current mode: " + ofToString(playbackMode));
     }
 }
 
