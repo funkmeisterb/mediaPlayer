@@ -199,6 +199,11 @@ void ofApp::draw(){
         float my = mouseY - cy;
         shaderBru.setUniform2f("mousePos", mx, my);
 
+		shaderBru.setUniform1f("videoW", currentMovie.getWidth());
+		shaderBru.setUniform1f("videoH", currentMovie.getHeight());
+		shaderBru.setUniform1f("windowW", (float)(ofGetWindowWidth()));
+		shaderBru.setUniform1f("windowH", (float)(ofGetWindowHeight()));
+
         ofPushMatrix();
         ofTranslate(cx, cy);
         //currentMovie.draw(-ofGetWidth()/2, -ofGetHeight()/2, targetW, targetH);
