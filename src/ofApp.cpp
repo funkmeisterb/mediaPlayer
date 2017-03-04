@@ -189,9 +189,6 @@ void ofApp::draw(){
         // and the modelView matrix
         shaderBru.begin();
 
-        // get mouse position relative to center of screen
-        shaderBru.setUniform1f("mouseRange", 150);
-
         // center screen.
         float cx = ofGetWidth() / 2.0;
         float cy = ofGetHeight() / 2.0;
@@ -206,8 +203,6 @@ void ofApp::draw(){
 
         ofPushMatrix();
         ofTranslate(cx, cy);
-        //currentMovie.draw(-ofGetWidth()/2, -ofGetHeight()/2, targetW, targetH);
-        //ofSetColor(ofColor::deepPink);
         //plane.drawWireframe();
 		plane.draw();
         ofPopMatrix();
